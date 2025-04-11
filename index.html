@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MSP2 MOD</title>
+  <style>
+    @keyframes pixelReveal {
+      0% {
+        filter: blur(10px);
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      50% {
+        filter: blur(2px);
+        opacity: 0.5;
+      }
+      100% {
+        filter: blur(0);
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes scaleFadeIn {
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes neonPulse {
+      0%, 100% {
+        box-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4, 0 0 30px #ff69b4;
+      }
+      50% {
+        box-shadow: 0 0 20px #ff1493, 0 0 30px #ff1493, 0 0 40px #ff1493;
+      }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(to bottom, #e6f7ff, #fff0f5);
+      color: #333;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 3em;
+      background: linear-gradient(to right, #ff69b4, #ffa500);
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 5px rgba(255, 182, 193, 0.4);
+      margin-bottom: 30px;
+      animation: pixelReveal 2s ease-out forwards;
+    }
+
+    .instructions {
+      font-size: 1.2em;
+      line-height: 1.5;
+      max-width: 600px;
+      margin-bottom: 40px;
+      opacity: 0;
+      transform: scale(0.8);
+      animation: scaleFadeIn 1.5s ease-out 2s forwards;
+
+      /* MAVİ BLUR ARKA PLAN */
+      background: rgba(200, 230, 255, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 50, 100, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .instructions ol {
+      padding-left: 20px;
+      text-align: left;
+    }
+
+    .instructions p {
+      text-align: center;
+    }
+
+    .bookmark {
+      padding: 20px 40px;
+      background-color: #ff69b4;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.5em;
+      animation: neonPulse 2s infinite alternate, scaleFadeIn 1s ease-out 3s forwards;
+      opacity: 0;
+      transform: scale(0.8);
+    }
+
+    .bookmark:hover {
+      background-color: #ff1493;
+    }
+
+    a.csp-link {
+      color: #e75480;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    a.csp-link:hover {
+      color: #ff1493;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .signature {
+      position: fixed;
+      bottom: 10px;
+      left: 15px;
+      font-size: 0.9em;
+      color: #999;
+      font-style: italic;
+      opacity: 0.8;
+      z-index: 10;
+    }
+
+    .warning-text {
+      color: red;
+      font-weight: bold;
+      font-size: 0.9em;
+      display: inline-block;
+      margin-left: 5px;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>MSP2 MOD</h1>
+
+  <div class="instructions">
+    <p>Yapılacaklar:</p>
+    <ol>
+      <li>Yer çubuğu etkin değilse <strong>Ctrl + Shift + B</strong> tıklayarak etkinleştir.</li>
+      <li>Butonu yer çubuğuna sürükle.</li>
+      <li>Oyun giriş ekranındayken MSP2 MOD tıkla</li>
+      <li><span>CSP eklentisini yapmak için: </span><a href="https://chromewebstore.google.com/detail/allow-csp-content-securit/hnojoemndpdjofcdaonbefcfecpjfflh" class="csp-link" target="_blank">CSP</a><span class="warning-text">⚠️ MSP2 MOD çalışması için önerilir aksi takdirde çalışmaz</span></li>
+    </ol>
+  </div>
+
+  <a href="javascript:$.getScript('https://cdn.jsdelivr.net/gh/palacejs/palacejs@refs/heads/main/msp2%20mod.js')" class="bookmark" draggable="true">MSP2 MOD</a>
+
+  <canvas id="springCanvas"></canvas>
+  <div class="signature">by Palace</div>
+
+  <script>
+    const canvas = document.getElementById("springCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const COLORS = ['#ffc0cb', '#fffacd', '#98fb98', '#e0ffff', '#ffe4e1'];
+    let petals = [];
+    let mouse = { x: null, y: null };
+
+    class Petal {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -canvas.height;
+        this.radius = Math.random() * 8 + 4;
+        this.speed = Math.random() * 0.6 + 0.2;
+        this.wind = (Math.random() - 0.5) * 1;
+        this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = 0.7;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      update() {
+        this.y += this.speed;
+        this.x += this.wind;
+        if (this.y > canvas.height || this.x < 0 || this.x > canvas.width) {
+          this.reset();
+        }
+        this.draw();
+
+        const dx = this.x - mouse.x;
+        const dy = this.y - mouse.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < 120) {
+          ctx.beginPath();
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = this.color;
+          ctx.lineWidth = 2.5;
+          ctx.globalAlpha = 0.8;
+          ctx.shadowColor = this.color;
+          ctx.shadowBlur = 8;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
+
+    function initPetals() {
+      petals = [];
+      for (let i = 0; i < 100; i++) {
+        petals.push(new Petal());
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      petals.forEach(p => p.update());
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initPetals();
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    initPetals();
+    animate();
+  </script>
+</body>
+</html>
